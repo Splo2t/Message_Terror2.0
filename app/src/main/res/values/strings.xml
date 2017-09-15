@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MessageTerror2.0</string>
+    <string name="action_settings">Settings</string>
+    <string name="phoneNumber_hint">문자를 받을 번호를 입력하세요.</string>
+    <string name="message_hint">보낼 메시지를 입력하세요.</string>
+    <string name="sendNumber_hit">보낼숫자</string>
+</resources>
