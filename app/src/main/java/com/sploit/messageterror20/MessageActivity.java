@@ -54,13 +54,6 @@ public class MessageActivity extends AppCompatActivity {
     EditText editTextProgressValue;
     String phoneNumbers;
     String messages;
-    String mName;
-
-    String eggMessage5[] = {"이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다"};
-    String eggMessage6[] = {"이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다","이스터에그 입니다"};
-    String eggMessage9[] = {"이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다","이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다.","이스터에그 입니다"};
-    String eggMessage13[] ={"이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다","이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다.","이스터에그 입니다","이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다.","이스터에그 입니다"};
-    String eggMessage18[] ={"이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다","이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다.","이스터에그 입니다","이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다","이스터에그 입니다", "이스터에그 입니다", "이스터에그 입니다.","이스터에그 입니다"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,37 +148,13 @@ public class MessageActivity extends AppCompatActivity {
                     progressBar.setMax(sendNumber);
                     progressBar.setProgress(0);
                     editTextProgressValue.setText("0/0");
-                    if ((phoneNumbers.equals("01000000000") || phoneNumbers.equals("010-0000-0000"))){
-                        if((sendNumber == 5 || sendNumber == 9 || sendNumber == 13 ||
-                                sendNumber == 18 || sendNumber == 6)) {
-                            switch (sendNumber) {
-                                case 5: {
-                                    sendEggSMS(phoneNumbers, eggMessage5[sentMessageCount]);
-                                    break;
-                                }
-                                case 6: {
-                                    sendEggSMS(phoneNumbers, eggMessage6[sentMessageCount]);
-                                    break;
-                                }
-                                case 9: {
-                                    sendEggSMS(phoneNumbers, eggMessage9[sentMessageCount]);
-                                    break;
-                                }
-                                case 13: {
-                                    sendEggSMS(phoneNumbers, eggMessage13[sentMessageCount]);
-                                    break;
-                                }
-                                default:{
-                                    sendEggSMS(phoneNumbers, messages);
-                                    break;
-                                }
-                            }
-                        }else sendEggSMS(phoneNumbers, messages);
-                    }else if((phoneNumbers.equals("01000000000") || phoneNumbers.equals("010-0000-0000"))){
-                        if (sendNumber == 18) {
-                            sendEggSMS(phoneNumbers, eggMessage18[sentMessageCount]);
-                        } else sendEggSMS(phoneNumbers, messages);
-                    } else sendEggSMS(phoneNumbers, messages);
+
+                    multiSendThread abc = new multiSendThread(phoneNumbers, messages);
+                    Thread thread = new Thread(abc);
+                    thread.setDaemon(true);
+                    thread.start();
+
+                  //  sendEggSMS(phoneNumbers, messages);
                 } else {
                     Toast.makeText(getBaseContext(), "빈칸을 모두 채워주세요,",
                             Toast.LENGTH_SHORT).show();
@@ -225,7 +194,7 @@ public class MessageActivity extends AppCompatActivity {
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:
                         if (sucessCount == false) {
-                            SystemClock.sleep(500);
+                            SystemClock.sleep(1000);
                             sentMessageCount++;
                             progressBar.setProgress(sentMessageCount);
                             Toast.makeText(getBaseContext(), sentMessageCount + "번째 전송 성공!",
@@ -235,38 +204,7 @@ public class MessageActivity extends AppCompatActivity {
                                 sucessCount = true;
                                 return;
                             }
-                            if ((phoneNumbers.equals("01000000000") || phoneNumbers.equals("010-0000-0000"))) {
-                                if ((sendNumber == 5 || sendNumber == 9 || sendNumber == 13 ||
-                                        sendNumber == 18 || sendNumber == 6)) {
-                                    switch (sendNumber) {
-                                        case 5: {
-                                            sendEggSMS(phoneNumbers, eggMessage5[sentMessageCount]);
-                                            break;
-                                        }
-                                        case 6: {
-                                            sendEggSMS(phoneNumbers, eggMessage6[sentMessageCount]);
-                                            break;
-                                        }
-                                        case 9: {
-                                            sendEggSMS(phoneNumbers, eggMessage9[sentMessageCount]);
-                                            break;
-                                        }
-                                        case 13: {
-                                            sendEggSMS(phoneNumbers, eggMessage13[sentMessageCount]);
-                                            break;
-                                        }
-                                        default: {
-                                            sendEggSMS(phoneNumbers, messages);
-                                            break;
-                                        }
-                                    }
-
-                                } else sendEggSMS(phoneNumbers, messages);
-                            } else if((phoneNumbers.equals("01000000000") || phoneNumbers.equals("010-0000-0000"))){
-                                if (sendNumber == 18) {
-                                    sendEggSMS(phoneNumbers, eggMessage18[sentMessageCount]);
-                                } else sendEggSMS(phoneNumbers, messages);
-                            } else sendEggSMS(phoneNumbers, messages);
+                           sendEggSMS(phoneNumbers, messages);
                         }
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
@@ -292,6 +230,19 @@ public class MessageActivity extends AppCompatActivity {
 
         SmsManager sms = SmsManager.getDefault();
         sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
+    }
+
+    class multiSendThread implements Runnable{
+        String phoneNumbers;
+        String messages;
+        multiSendThread(String p, String m){
+            phoneNumbers = p;
+            messages = m;
+        }
+        public void run(){
+            sendEggSMS(phoneNumbers, messages);
+        }
+
     }
 
 
