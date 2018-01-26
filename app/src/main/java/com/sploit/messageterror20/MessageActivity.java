@@ -228,6 +228,7 @@ public class MessageActivity extends AppCompatActivity {
             }
         }, new IntentFilter(SENT));
 
+        
         SmsManager sms = SmsManager.getDefault();
         sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
     }
