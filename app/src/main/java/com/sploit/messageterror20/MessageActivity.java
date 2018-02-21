@@ -204,7 +204,10 @@ public class MessageActivity extends AppCompatActivity {
                                 sucessCount = true;
                                 return;
                             }
-                           sendEggSMS(phoneNumbers, messages);
+                            multiSendThread abc = new multiSendThread(phoneNumbers, messages);
+                            Thread thread = new Thread(abc);
+                            thread.setDaemon(true);
+                            thread.start();
                         }
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
